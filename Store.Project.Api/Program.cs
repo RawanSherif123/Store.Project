@@ -4,7 +4,11 @@ using Domain.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Persistence.Data;
+using Persistence.Data.Repositories;
+using Services;
+using Services.Abstractions;
 
+using AssemblyMapping = Services.AssemblyReference;
 namespace Store.Project.Api
 {
     public class Program
@@ -27,6 +31,9 @@ namespace Store.Project.Api
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
             builder.Services.AddScoped<IDbInitializer , DbInitializer>(); // Allow DI For DbInitializer
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddAutoMapper(typeof(AssemblyMapping).Assembly);
+            builder.Services.AddScoped<IServicesManager , ServicesManager>();
 
             var app = builder.Build();
 
