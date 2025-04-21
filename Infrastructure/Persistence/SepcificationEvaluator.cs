@@ -22,6 +22,15 @@ namespace Persistence
             if (sepc.Criteria is not null)
              query  =   query.Where(sepc.Criteria);
 
+            if (sepc.OrderBy is not null)
+            query = query.OrderBy(sepc.OrderBy);
+            else if (sepc.OrderByDescending is not null )
+                query = query.OrderByDescending(sepc.OrderByDescending);
+
+            if ( sepc.IsPagination)
+                query = query.Skip(sepc.Skip).Take(sepc.Take);
+
+
             query = sepc.IncludeExpressions.Aggregate(query, (currentQuery, includeExpression) => currentQuery.Include(includeExpression));
 
             return query;

@@ -40,7 +40,8 @@ namespace Persistence.Data.Repositories
             if (typeof(TEntity) == typeof(Product))
             {
                 //return await _context.Products.Include(p => p.ProductBrand).Include(p => p.ProductType).FirstOrDefaultAsync(p => p.Id == id as int?) as TEntity;
-                return await _context.Products.Where(p => p.Id == id as int ?).Include(p => p.ProductBrand).Include(p => p.ProductType).FirstOrDefaultAsync(p => p.Id == id as int?) as TEntity;
+                 return await _context.Products.Where(p => p.Id == id as int ?).Include(p => p.ProductBrand).Include(p => p.ProductType).FirstOrDefaultAsync(p => p.Id == id as int?) as TEntity;
+              
 
             }
             return await _context.Set<TEntity>().FindAsync(id);
@@ -68,9 +69,16 @@ namespace Persistence.Data.Repositories
         {
            return await ApplySepcification(sepc).FirstOrDefaultAsync();
         }
+
+        public async Task<int> CountAsync(ISepcifications<TEntity, TKey> spec)
+        {
+            return await  ApplySepcification(spec).CountAsync();
+        }
         private IQueryable<TEntity> ApplySepcification(ISepcifications<TEntity, TKey> sepc)
         {
             return SepcificationEvaluator.GetQuery(_context.Set<TEntity>(), sepc);
         }
+
+     
     }
 }
