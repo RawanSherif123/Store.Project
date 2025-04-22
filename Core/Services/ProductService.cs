@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Domain.Contracts;
+using Domain.Exceptions;
 using Domain.Models;
 using Services.Abstractions;
 using Services.Sepcifications;
@@ -36,8 +37,8 @@ namespace Services
             var sepc = new ProductWithBrandsAndTypesSepcifications(id);
 
             var product = await unitOfWork.GetRepository<Product, int> ().GetAsync(sepc);
-            if (product is null) return null;
-          var result =  mapper .Map<ProductResultDto>(product);
+            if (product is null) throw new ProductNotFoundExceptions(id);
+            var result =  mapper .Map<ProductResultDto>(product);
             return result;
         }
         public async Task<IEnumerable<BrandsResultDto>> GetProductBrandsAsync()

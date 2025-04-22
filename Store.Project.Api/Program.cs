@@ -1,13 +1,16 @@
 
 using System.Runtime.InteropServices;
 using Domain.Contracts;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Persistence.Data;
 using Persistence.Data.Repositories;
 using Services;
 using Services.Abstractions;
-
+using Shared.ErrorsModels;
+using Store.Project.Api.MiddleWares;
 using AssemblyMapping = Services.AssemblyReference;
 namespace Store.Project.Api
 {
@@ -35,6 +38,24 @@ namespace Store.Project.Api
             builder.Services.AddAutoMapper(typeof(AssemblyMapping).Assembly);
             builder.Services.AddScoped<IServicesManager , ServicesManager>();
 
+            builder.Services.Configure<ApiBehaviorOptions>(config =>
+            {
+                config.InvalidModelStateResponseFactory = (actionContext) =>
+                {
+                  var errors =   actionContext.ModelState.Where(m => m.Value.Errors.Any())
+                                            .Select(m => new ValidationError()
+                                            {
+                                                Field = m.Key,
+                                                Errors = m.Value.Errors.Select( errors => errors.ErrorMessage)
+                                            });
+                    var response = new ValidationErrorResponse()
+                    {
+                        Errors = errors
+                    };
+                    return new BadRequestObjectResult(response);
+                };
+            });
+
             var app = builder.Build();
 
             #region Seeding
@@ -45,6 +66,7 @@ namespace Store.Project.Api
 
             #endregion
 
+            app.UseMiddleware<GlobalErrorHandlingMiddleWares>();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
