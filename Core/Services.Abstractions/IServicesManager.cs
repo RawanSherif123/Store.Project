@@ -9,5 +9,6 @@ namespace Services.Abstractions
     public interface IServicesManager
     {
        IProductService  productService { get;  }
+        IBasketService BasketService { get;  }
     }
 }
